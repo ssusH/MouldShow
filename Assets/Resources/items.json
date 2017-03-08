@@ -1,0 +1,51 @@
+﻿{
+  "rootModelName": "AircraftEngine",
+  "timeStamp": "2016-01-01",
+  "statusList": 
+  [
+    {
+      "name": "Propeller",
+      "value": "5",
+      "introduce": "It's a Propeller"
+    },
+    {
+      "name": "Spinner",
+      "value": "4",
+        "introduce": "It's a Propeller"
+    },
+    {
+      "name": "zyl-kopf",
+      "value": "2",
+        "introduce": "It's a zyl-kopf"
+    },
+    {
+      "name": "Ansaugrohr",
+      "value": "2",
+        "introduce": "It's a Ansaugrohr"
+    },
+    {
+      "name": "Auspuffro0",
+      "value": "1",
+        "introduce": "It's a Auspuffro0"
+    },
+    {
+      "name": "kurbel_geh",
+      "value": "2",
+      "introduce": "It's a kurbel_geh"
+    },
+    {
+      "name": "zyl-kopf02",
+      "value": "1",
+      "introduce": "It's a zyl-kopf02"
+    },
+    {
+      "name": "zyl-kopf01",
+      "value": "3",
+      "introduce": "It's a zyl-kopf01"
+    },
+    {
+      "name": "Nockengeha",
+      "value": "5",
+      "introduce": "It's a Nockengeha"
+    }
+  ]}
