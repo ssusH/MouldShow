@@ -1,8 +1,40 @@
-﻿{
-  "rootModelName": "AircraftEngine",
-  "timeStamp": "2016-01-01",
-  "statusList": 
-  [
+{
+  "title": "航空发动机模型",
+  "params": {
+    "location": "15,28",
+    "lens": 56
+  },
+  "status": [
+    {
+      "value": 1,
+      "title": "健康",
+      "R": 255,
+      "G": 0,
+      "B": 0
+    },
+    {
+      "value": 2,
+      "title": "亚健康",
+      "R": 0,
+      "G": 255,
+      "B": 0
+    },
+    {
+      "value": 3,
+      "title": "轻微故障",
+      "R": 0,
+      "G": 0,
+      "B": 255
+    },
+    {
+      "value": 4,
+      "title": "故障",
+      "R": 0,
+      "G": 0,
+      "B": 0
+    }
+  ],
+  "statusList": [
     {
       "name": "Propeller",
       "value": "5",
@@ -11,22 +43,22 @@
     {
       "name": "Spinner",
       "value": "4",
-        "introduce": "It's a Spinner"
+      "introduce": "It's a Spinner"
     },
     {
       "name": "zyl-kopf",
       "value": "2",
-        "introduce": "It's a zyl-kopf"
+      "introduce": "It's a zyl-kopf"
     },
     {
       "name": "Ansaugrohr",
       "value": "2",
-        "introduce": "It's a Ansaugrohr"
+      "introduce": "It's a Ansaugrohr"
     },
     {
       "name": "Auspuffro0",
       "value": "1",
-        "introduce": "It's a Auspuffro0"
+      "introduce": "It's a Auspuffro0"
     },
     {
       "name": "kurbel_geh",
@@ -48,4 +80,5 @@
       "value": "5",
       "introduce": "It's a Nockengeha"
     }
-  ]}
+  ]
+}

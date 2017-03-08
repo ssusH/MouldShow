@@ -24,6 +24,10 @@ public class RenderStatus : MonoBehaviour
     private JsonData statusData;
     private string jsonString;
     public TextAsset jsonFile;
+    //配置文件
+    private JsonData configDate;
+    private string configString;
+
     //用鼠标控制模型旋转、缩放、打开
     public Transform target;
 
@@ -68,20 +72,26 @@ public class RenderStatus : MonoBehaviour
     private float guiTime = 0.0f;
     string sceneName;
     [DllImport("__Internal")]
+
     private static extern string StringReturnValueFunction();
     public static string UrlMsg = string.Empty;
     public Transform messageBox;
-
+    public bool UIcanvas;
     void Start()
     {//用下面这一句才可以在webgl运行
      //访问本机json文件
-        jsonString = ((TextAsset)Resources.Load("items")).text;
-        statusData = JsonMapper.ToObject(jsonString);
         mainObjName = "AircraftEngine";
         mainObj = (GameObject)Instantiate(Resources.Load(mainObjName));
-        AddCollider(mainObj);
         mainObj.name = mainObjName;
+
+        jsonString = ((TextAsset)Resources.Load("items")).text;
+        configString = ((TextAsset)Resources.Load("config")).text;
+        statusData = JsonMapper.ToObject(jsonString);
+        configDate = JsonMapper.ToObject(configString);  
+        AddCollider(mainObj);
+        
         openUp = false;
+        UpdateStatusAll(statusData);
         //UrlMsg = StringReturnValueFunction();
         //jsonPath ="http://"+ UrlMsg + "/monitor/items.txt";
         //jsonPath = "http://" + UrlMsg + "/monitor/show3d";
@@ -147,16 +157,14 @@ public class RenderStatus : MonoBehaviour
         originRotate = transform.rotation;
         ////按照filePath指定的文件内容，显示模型状态（颜色）。
         if (statusData != null)
-        {
-            UpdateStatusAll(statusData);
+        { 
             //用鼠标控制模型旋转，缩放，打开
             mouseRotateAndScale(mainObj.transform);
         }
 
         cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(cameraRay, out hit) && messageBox.gameObject.active != true) 
+        if (Physics.Raycast(cameraRay, out hit) && messageBox.gameObject.active != true&&!UIcanvas) 
         {
-
             if (Input.GetMouseButtonDown(0))
                 showMessage(hit.transform.name+":"+getIntroduce(hit.transform.name));
         }
@@ -196,94 +204,9 @@ public class RenderStatus : MonoBehaviour
     {
         Transform t;
         t = check.FindChild(name);
-        switch (status)
-        {
-            case "1":
-                {
-                    flashlight = flashlight + Time.deltaTime;
-
-                    if (flashlight > 0.3)
-                    {
-                        flashlight2 = flashlight2 + Time.deltaTime;
-                        if (flashlight2 > 0.1)
-                        {
-                            flashlight = 0;
-                            flashlight2 = 0;
-                        }
-                        t.GetComponent<Renderer>().material.color = Color.yellow;
-                        //    Debug.Log(flashlight + " yellow");
-
-                    }
-                    else
-                    {
-                        t.GetComponent<Renderer>().material.color = Color.red;
-                        // Debug.Log(flashlight + " Red");
-                    }
-                    //  t.GetComponent<Renderer>().material.color =new Color(0.04f,0.89f,0.87f, 0.1f);;
-                    break;
-                }
-            case "2":
-                t.GetComponent<Renderer>().material.color = new Color(0.8f, 0.42f, 0.11f, 0.3f); ;
-                break;
-            case "3":
-                t.GetComponent<Renderer>().material.color = new Color(0.5f, 0.2f, 0.7f, 0.6f);
-                break;
-            case "4":
-                t.GetComponent<Renderer>().material.color = new Color(0.17f, 0.36f, 0.60f, 0.1f);
-                break;
-            case "5":
-                t.GetComponent<Renderer>().material.color = new Color(0.39f, 0.88f, 0.03f, 0.6f);
-                break;
-            default:
-                break;
-        }
-        //foreach (Transform t in check.GetComponentsInChildren<Transform>())
-        //{
-        //    if (t.name == name)
-        //    {
-        //        switch (status)
-        //        {
-        //            case "1":
-        //                {
-        //                    flashlight = flashlight + Time.deltaTime;
-
-        //                    if (flashlight > 0.3)
-        //                    {
-        //                        flashlight2 = flashlight2 + Time.deltaTime;
-        //                        if (flashlight2 > 0.1)
-        //                        {
-        //                            flashlight = 0;
-        //                            flashlight2 = 0;
-        //                        }
-        //                        t.GetComponent<Renderer>().material.color = Color.yellow;
-        //                    //    Debug.Log(flashlight + " yellow");
-
-        //                    }
-        //                    else
-        //                    {
-        //                        t.GetComponent<Renderer>().material.color = Color.red;
-        //                       // Debug.Log(flashlight + " Red");
-        //                    }
-        //                    //  t.GetComponent<Renderer>().material.color =new Color(0.04f,0.89f,0.87f, 0.1f);;
-        //                    break;
-        //                }
-        //            case "2":
-        //                t.GetComponent<Renderer>().material.color = new Color(0.8f, 0.42f, 0.11f, 0.3f); ;
-        //                break;
-        //            case "3":
-        //                t.GetComponent<Renderer>().material.color = new Color(0.5f, 0.2f, 0.7f, 0.6f);
-        //                break;
-        //            case "4":
-        //                t.GetComponent<Renderer>().material.color = new Color(0.17f, 0.36f, 0.60f, 0.1f);
-        //                break;
-        //            case "5":
-        //                t.GetComponent<Renderer>().material.color = new Color(0.39f, 0.88f, 0.03f, 0.6f);
-        //                break;
-        //            default:
-        //                break;
-        //        }
-        //    }
-        //}
+        Color col = getconfigcolor(status);
+        if(col != Color.white)
+            t.GetComponent<Renderer>().material.color = col;   
     }
  
     void mouseRotateAndScale(Transform check)
@@ -324,26 +247,48 @@ public class RenderStatus : MonoBehaviour
     }
     public void openUpmodel()
     {
-        
+
         foreach (Transform t in mainObj.transform.GetComponentsInChildren<Transform>())
         {
             if (t.name != mainObjName)
             {
                 t.Translate(t.GetComponent<Renderer>().bounds.center * 0.1f, Space.World);
             }
-                
         }
         openUp = true;
     }
+    public void closeUpmodel()
+    {
+
+        foreach (Transform t in mainObj.transform.GetComponentsInChildren<Transform>())
+        {
+            if (t.name != mainObjName)
+            {
+                if (Vector3.Distance(t.localPosition, Vector3.zero) == 0)
+                {
+                    return;
+                }
+                if (Vector3.Distance(t.localPosition,Vector3.zero)<0.1f)
+                {
+                    reBuildmodel();
+                    return;
+                }                  
+                t.Translate(t.GetComponent<Renderer>().bounds.center * -0.1f, Space.World);
+            }
+        }
+        openUp = true;
+    }
+
     public void reBuildmodel()
     {
-        Destroy(mainObj);
-        mainObj = null;
-        mainObj = (GameObject)Instantiate(Resources.Load(mainObjName));
-        AddCollider(mainObj);
-        mainObj.name = mainObjName;
-        //      check = mainObj.transform;
+        
+        for(int i = 0;i<mainObj.transform.childCount;i++)
+        {
+
+            mainObj.transform.GetChild(i).transform.localPosition = Vector3.zero;
+        }
         openUp = false;
+
     }
 
     public void calculateObjectsize(GameObject obj)
@@ -397,6 +342,20 @@ public class RenderStatus : MonoBehaviour
                 return statusData["statusList"][i]["introduce"].ToString();
         }
         return "未找到介绍信息";
+    }
+
+    public Color getconfigcolor(string status)
+    {
+        for(int i = 0;i< configDate["status"].Count;i++)
+        {
+            if(configDate["status"][i]["value"].ToString() == status)
+            {
+                Debug.Log(configDate["status"][i]["title"].ToString() + " " +new Color(float.Parse(configDate["status"][i]["R"].ToString()), float.Parse( configDate["status"][i]["G"].ToString()), float.Parse(configDate["status"][i]["B"].ToString())));
+                return new Color(float.Parse(configDate["status"][i]["R"].ToString()), float.Parse(configDate["status"][i]["G"].ToString()), float.Parse(configDate["status"][i]["B"].ToString()));
+                
+            }
+        }
+        return Color.white;
     }
 
 }
