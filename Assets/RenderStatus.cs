@@ -13,13 +13,10 @@ public class RenderStatus : MonoBehaviour
     //根模型 
     public GameObject mainObj;
     //根模型的名字
-    string mainObjName;
+    public string mainObjName;
     //要找子物体的那个物体
     Bounds bound;
-    public Transform parent;
-    //想找的子物体的名字
-    public string childName;
-    //
+  
     //状态文件
     private JsonData statusData;
     private string jsonString;
@@ -58,7 +55,8 @@ public class RenderStatus : MonoBehaviour
 
   string jsonPath ="http://172.18.16.23:87/monitor/show3d";
   //string jsonPath = "http://172.18.16.21/getUrl/items.txt";
-    // private string modelPath= "file://" + Application.streamingAssetsPath + "/AircraftEngine.3ds";
+    //本地地址
+    //private string modelPath= "file://" + Application.streamingAssetsPath + "/AircraftEngine.3ds";
     private WWW www;
     private WWW wwwModel;
     private bool isCompleted = false; //配置文件是否加载完成
@@ -71,19 +69,29 @@ public class RenderStatus : MonoBehaviour
     private float flashlight2 = 0.0f;
     private float guiTime = 0.0f;
     string sceneName;
+    public string url;
     [DllImport("__Internal")]
-
+    
     private static extern string StringReturnValueFunction();
     public static string UrlMsg = string.Empty;
     public Transform messageBox;
     public bool UIcanvas;
-    void Start()
+    void OnGUI()
+    { 
+        string txt = "file://" + Application.streamingAssetsPath + "\\model.assetbundle";
+        GUI.Label(new Rect(0, 0, 100, 100), txt);
+    }
+
+    IEnumerator Start()
     {//用下面这一句才可以在webgl运行
      //访问本机json文件
-        mainObjName = "AircraftEngine";
-        mainObj = (GameObject)Instantiate(Resources.Load(mainObjName));
+        url = "file://" + Application.streamingAssetsPath + "\\model.assetbundle";
+        WWW www = new WWW(url);
+        //定义www为WWW类型并且等于所下载下来的WWW中内容。
+        yield return www;
+        mainObj = (GameObject)Instantiate(www.assetBundle.mainAsset);
+        Debug.Log("ss");   
         mainObj.name = mainObjName;
-
         jsonString = ((TextAsset)Resources.Load("items")).text;
         configString = ((TextAsset)Resources.Load("config")).text;
         statusData = JsonMapper.ToObject(jsonString);
@@ -93,7 +101,7 @@ public class RenderStatus : MonoBehaviour
         openUp = false;
         UpdateStatusAll(statusData);
         //UrlMsg = StringReturnValueFunction();
-        //jsonPath ="http://"+ UrlMsg + "/monitor/items.txt";
+        //jsonPath  ="http://"+ UrlMsg + "/monitor/items.txt";
         //jsonPath = "http://" + UrlMsg + "/monitor/show3d";
         //StartCoroutine(LoadJson());
         //Camera.main.ViewportToWorldPoint()
@@ -119,11 +127,10 @@ public class RenderStatus : MonoBehaviour
         }
   
         //获取根模型，供MoveModel.cs使用
-        mainObjName = "AircraftEngine";
         // mainObj = (GameObject)Resources.LoadAssetAtPath("AssetsAssets\Resources\AircraftEngine.3ds", typeof(GameObject));
         mainObj = (GameObject)Instantiate(Resources.Load(mainObjName));
         AddCollider(mainObj);
-        mainObj.name = "AircraftEngine";
+        mainObj.name = mainObjName;
     }
     private IEnumerator LoadStatData()
     {
@@ -161,7 +168,28 @@ public class RenderStatus : MonoBehaviour
             //用鼠标控制模型旋转，缩放，打开
             mouseRotateAndScale(mainObj.transform);
         }
-
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            stopfreeCamera();
+            rotateCamera();
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            stoprotateCamera();
+            freeCamera();
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            reBuildmodel();
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            closeUpmodel();
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            openUpmodel();
+        }
         cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(cameraRay, out hit) && messageBox.gameObject.active != true&&!UIcanvas) 
         {
@@ -190,8 +218,9 @@ public class RenderStatus : MonoBehaviour
     {
 
         //将字符串转化为json object
-         //statusData = JsonMapper.ToObject(filePath);
-
+        //statusData = JsonMapper.ToObject(filePath);
+        if (statusData["rootModelName"].ToString() != mainObjName)
+            return;
         //遍历所有装备模型子部件信息
         for (int i = 0; i < statusData["statusList"].Count; i++)
         {
@@ -326,6 +355,12 @@ public class RenderStatus : MonoBehaviour
         
         
     }
+    public void showhelp(bool state)
+    {
+        UIcanvas = state;
+    }
+
+
 
     public void showMessage(string message)
     {

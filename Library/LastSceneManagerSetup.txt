@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/AE.unity
+- path: Assets/ModelShow.unity
   isLoaded: 1
   isActive: 1
